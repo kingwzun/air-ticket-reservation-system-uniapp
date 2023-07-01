@@ -1,0 +1,15 @@
+{
+    "id": "wxh-calendar-date-picker",
+    "name": "可显示节假日的日期选择器",
+    "version": "1.0.0",
+    "description": "一个可以显示节假日的日期选择器小组件，一般用于预约日期",
+    "keywords": [
+        "日期选择器,可显示节假日"
+    ],
+    "dcloudext": {
+        "category": [
+            "前端组件",
+            "通用组件"
+        ]
+    }
+}
