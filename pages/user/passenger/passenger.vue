@@ -3,21 +3,21 @@
 		<view class="header">
 		<view class="add">
 			<view class="btn" @tap="add">
-				<view class="icon tianjia"></view>新增地址
+				<view class="icon tianjia"></view>新增乘机人
 			</view>
 		</view>
 		</view>
 
 			
-		<!-- 商品列表 -->
+		<!-- 乘机人列表 -->
 		<view class="content">
 		<view class="passenger-list">
-			<view class="tis" v-if="passengerList.length==0">购物车是空的哦~
+			<view class="tis" v-if="passengerList.length==0">没有乘机人哦~
 			</view>
 		    <view class="row" v-for="(row,index) in passengerList" :key="index" >
 				<view class="checkbox-box" @tap="selected(index)">
 					<view class="checkbox">
-						<view :class="[selectedPassengers[index]?'on':'']"></view>
+						<view :class="[ selectedPassengers.includes(row.id) ?'on':'']"></view>
 					</view>
 				</view>
 				<view class="center">
@@ -84,20 +84,31 @@
 					key:'Passengers',
 					success: (res) => {
 						this.passengerList=res.data;
-						uni.removeStorage({
-							key:'Passengers'
-						})
+						// uni.removeStorage({
+						// 	key:'Passengers'
+						// })
 					}
 				}),
 				uni.getStorage({
 					key:'selectedPassengers',
 					success: (res) => {
 						this.selectedPassengers=res.data
-						uni.removeStorage({
-							key:'selectedPassengers'
-						})
+						// uni.removeStorage({
+						// 	key:'selectedPassengers'
+						// })
 					}
 				})
+			},
+			finish(){
+				uni.removeStorage({
+					key:'selectedPassengers'
+				}),
+				uni.setStorage({
+					key: 'selectedPassengers',
+					data: this.selectedPassengers,
+				});
+				uni.navigateBack();
+				
 			},
 			edit(row){
 				uni.setStorage({
@@ -133,7 +144,7 @@
 			selected(index){
 				this.passengerList[index].selected = this.passengerList[index].selected?false:true;
 				let i = this.selectedPassengers.indexOf(this.passengerList[index].id);
-				i>-1?this.selectedPassengers.splice(i, 1):this.selectedPassengers.push(this.passengerList[index].id);
+				i>-1 ? this.selectedPassengers.splice(i, 1) :this.selectedPassengers.push(this.passengerList[index].id);
 				this.isAllselected = this.selectedPassengers.length == this.passengerList.length;
 				console.log("sfsdf",this.selectedPassengers);
 			},

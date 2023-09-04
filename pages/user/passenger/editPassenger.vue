@@ -2,44 +2,50 @@
 	<view>
 		<view class="content">
 			<view class="row">
+				<view class="nominal">证件类型</view>
+				<!-- <view > -->
+				    <uni-section class="input" type="line">
+				      <uni-data-select
+				        v-model="value"
+				        :localdata="range"
+				      ></uni-data-select>
+				    </uni-section>
+				<!-- </view> -->
+			</view>
+			<view class="row">
 				<view class="nominal">
-					收件人
+					姓名
 				</view>
 				<view class="input">
-					<input placeholder="请输入收件人姓名" type="text" v-model="name" />
+					<input placeholder="请输入乘机人姓名" type="text" v-model="name" />
 				</view>
 			</view>
+
+
 			<view class="row">
 				<view class="nominal">
-					电话号码
-				</view>
-				<view class="input">
-					<input placeholder="请输入收件人电话号码" type="text" v-model="tel" />
-				</view>
-			</view>
-			<view class="row">
-				<view class="nominal">
-					所在地区
-				</view>
-				<view class="input" @tap="chooseCity">
-					{{region.label}}
-				</view>
-				
-			</view>
-			<view class="row">
-				<view class="nominal">
-					详细地址
+					证件号
 				</view>
 				<view class="input">
 					<textarea v-model="detailed" auto-height="true" placeholder="输入详细地址"></textarea>
 				</view>
 			</view>
+			
 			<view class="row">
 				<view class="nominal">
-					设置默认地址
+					电话号码
 				</view>
-				<view class="input switch">
-					<switch color="#f06c7a" :checked="isDefault" @change=isDefaultChange />
+				<view class="input-tel">
+					<input placeholder="请输入电话号码" type="text" v-model="tel" />
+				</view>
+				<button class="btn-tel" type="default" plain="true">发送验证码</button>
+			</view>
+			<view class="row">
+				<view class="nominal">
+					验证码
+				</view>
+				<view class="input">
+					<input placeholder="请输入验证码" type="text" />
 				</view>
 			</view>
 			<view class="row" v-if="editType=='edit'" @tap="del">
@@ -47,10 +53,11 @@
 					删除收货地址
 				</view>
 			</view>
+			
 		</view>
 		<view class="save" @tap="save">
 			<view class="btn">
-				保存地址
+				提交
 			</view>
 		</view>
 		<mpvue-city-picker :themeColor="themeColor" ref="mpvueCityPicker" :pickerValueDefault="cityPickerValue" @onCancel="onCancel" @onConfirm="onConfirm"></mpvue-city-picker>
@@ -65,6 +72,11 @@
 		},
 		data() {
 			return {
+				value: 0,
+				range: [
+				  { value: 0, text: "身份证" },
+				  { value: 1, text: "护照" },
+				],
 				editType:'edit',
 				id:'',
 				name:'',
@@ -187,6 +199,11 @@
 </script>
 <style lang="scss">
 
+// .row-tel{
+// 	.input-tel{
+// 		width: 70%;
+// 	}
+// }
 .save{
 		view{
 			display: flex;
@@ -234,6 +251,24 @@
 				font-weight: 200;
 				font-size: 30upx;
 				align-items: center;
+			}
+			.input-tel{
+				width: 36%;
+				// padding: 20upx 0;
+				align-items: center;
+				font-size: 30upx;
+				&.switch{
+					justify-content: flex-end;
+				}
+				.textarea{
+					margin: 20upx 0;
+					min-height: 120upx;
+				}				
+			}
+			.btn-tel{
+				width: 33%;
+				margin-top: 2%;
+				margin-bottom: 2%;
 			}
 			.input{
 				width: 70%;

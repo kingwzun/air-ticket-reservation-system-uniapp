@@ -144,37 +144,18 @@
 						uni.showToast({title: '登录成功',icon:"success"});
 						uni.setStorageSync('token',res.data)
 						console.log(uni.getStorageSync("token"))
+						this.api.getLoginUser().then(res=>{
+							uni.removeStorage('userInfo')
+							uni.setStorageSync('userInfo',res.data)
+							console.log(uni.getStorageSync('userInfo'))
+							uni.navigateBack()
+						})
 						
 					}else{
 						uni.showToast({title: res.data,icon:"none"});
 					}
 				})
 				
-				//模板示例比对本地储存的用户信息，实际使用中请替换为上传服务器比对。
-				setTimeout(()=>{
-					// let md5PW = md5(this.passwd)
-					uni.getStorage({
-						key: 'UserList',
-						success: (res)=>{
-							for(let i in res.data){
-								let row = res.data[i];
-								if(row.username==this.phoneNumber){
-									uni.hideLoading()
-									//比对密码
-									if(md5PW == res.data[i].passwd){
-										uni.showToast({title: '登录成功',icon:"success"});
-									}else{
-										uni.showToast({title: '账号或密码不正确',icon:"none"});
-									}
-								}
-							}
-						},
-						fail:function(e){
-							uni.hideLoading()
-							uni.showToast({title: '手机号码未注册',icon:"none"});
-						}
-					});
-				},1000)
 			
 			}
 		}

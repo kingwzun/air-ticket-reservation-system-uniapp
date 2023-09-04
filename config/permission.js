@@ -7,7 +7,10 @@ import { getAuthorization } from '@/config/auth.js'
 // 白名单
 const whiteList = [
   '/', // 注意入口页必须直接写 '/'
-  '/user/login'
+  '/user/login',
+  '/pages/login/login',
+  '/pages/ticket/ticketList',
+  'pages/tabBar/home/home',
   // { pattern: /^\/pages\/list.*/ }, // 支持正则表达式
   // '/pages/grid/grid',
   // '/pages/user-center/user-center',
@@ -43,7 +46,7 @@ export default async function() {
           	icon: 'none'
           })
           uni.navigateTo({
-          	url: "/user/login"
+          	url: "/pages/login/login"
           })
           return false
         }

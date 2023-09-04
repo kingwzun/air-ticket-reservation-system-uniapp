@@ -64,6 +64,22 @@
 			}
 		},
 		{
+			"path": "pages/tabBar/myOrderList/myOrderList",
+			"style": {
+				"enablePullDownRefresh": true,
+				"navigationBarTextStyle":"black",
+				"app-plus": {
+					"titleNView": false ,//禁用原生导航栏
+					"softinputNavBar":"none",
+					"subNVues":[{  
+						"id": "cartTitleNvue", // 唯一标识  
+						"path": "pages/tabBar/myOrderList/subNvue/myOrderListTitleNvue", // 页面路径  
+						"type":"navigationBar"
+					}]
+				}
+			}
+		},
+		{
 			"path": "pages/tabBar/user/user",
 			"style": {
 				"enablePullDownRefresh": true,
@@ -91,6 +107,36 @@
 				}
 			}
         },
+		{
+		    "path" : "pages/tabBar/myOrderList/checkUpgradeList",
+		    "style" : {
+				"navigationBarTitleText" : "",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce":"none"
+				}
+			}
+		},
+		{
+		    "path" : "pages/tabBar/myOrderList/checkReturnList",
+		    "style" : {
+				"navigationBarTitleText" : "",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce":"none"
+				}
+			}
+		},
+		{
+		    "path" : "pages/tabBar/myOrderList/checkBaggageList",
+		    "style" : {
+				"navigationBarTitleText" : "",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce":"none"
+				}
+			}
+		},
 		{
 		    "path" : "pages/goods/goods",
 		    "style" : {
@@ -250,7 +296,7 @@
 		    "path" : "pages/user/passenger/editPassenger",
 		    "style" : {
 				"navigationBarBackgroundColor":"#ffffff",
-				"navigationBarTitleText":"编辑乘机人信息",
+				"navigationBarTitleText":"填写乘机人信息",
 				"backgroundColorTop":"#ffffff",
 				"backgroundColorBottom":"#ffffff"
 			}
@@ -276,10 +322,12 @@
         ,{
             "path" : "pages/pay/success/success",
             "style" : {
-				"navigationBarBackgroundColor":"#ffffff",
-				"navigationBarTitleText":"支付成功",
-				"backgroundColorTop":"#ffffff",
-				"backgroundColorBottom":"#ffffff"
+				"titleNView": false ,//禁用原生导航栏
+				"bounce":"none"
+				// "navigationBarBackgroundColor":"#ffffff",
+				// "navigationBarTitleText":"支付成功",
+				// "backgroundColorTop":"#ffffff",
+				// "backgroundColorBottom":"#ffffff"
 			}
         }
         ,{
@@ -319,10 +367,10 @@
 				"text": "分类"
 			},
 			{
-				"pagePath": "pages/tabBar/cart/cart",
+				"pagePath": "pages/tabBar/myOrderList/myOrderList",
 				"iconPath": "static/img/tabBar/cart.png",
 				"selectedIconPath": "static/img/tabBar/cart-on.png",
-				"text": "购物车"
+				"text": "订单"
 			},
 			{
 				"pagePath": "pages/tabBar/user/user",

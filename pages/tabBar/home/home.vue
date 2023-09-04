@@ -177,9 +177,9 @@ export default {
 			],
 			// 分类菜单
 			categoryList: [
-				{ id: 1, name: '改期/升舱', img: '/static/img/category/shengcang.png' },
-				{ id: 2, name: '退票', img: '/static/img/category/tuipiao.png' },
-				{ id: 3, name: '选座值机', img: '/static/img/category/zhiji.png' },
+				{ id: 1, name: '升舱', img: '/static/img/category/shengcang.png' },
+				{ id: 2, name: '改期/退票', img: '/static/img/category/tuipiao.png' },
+				{ id: 3, name: '物品托运', img: '/static/img/category/zhiji.png' },
 				{ id: 4, name: '机上WI-FI', img: '/static/img/category/wifi.png' },
 				{ id: 5, name: '高铁联订', img: '/static/img/category/tielu.png' },
 				{ id: 6, name: '酒店预订', img: '/static/img/category/jiudian.png' },
@@ -473,7 +473,7 @@ export default {
 		searchTickets(){
 			// uni.showToast({ title: '商品' + e.goods_id, icon: 'none' });
 			uni.navigateTo({
-				url: '../../ticket/ticketList?departureCity='+this.region1.label+'&destCity='+this.region2.label+'&departureTime='+this.date
+				url: '../../ticket/ticketList?departureCity='+this.region1.label+'&destCity='+this.region2.label+'&departureTime='+this.date+'&purposeType=home'
 			});
 		},
 		//轮播图跳转
@@ -482,11 +482,28 @@ export default {
 		},
 		//分类跳转
 		toCategory(e) {
-			//uni.showToast({title: e.name,icon:"none"});
+			console.log("e",e.id)
+			// uni.showToast({title: e.id,icon:"none"});
 			uni.setStorageSync('catName',e.name);
-			uni.navigateTo({
-				url: '../../goods/goods-list/goods-list?cid='+e.id+'&name='+e.name
-			});
+			if(e.id==1){
+				uni.navigateTo({
+					// ?cid='+e.id+'&name='+e.name
+					url: '../myOrderList/checkUpgradeList?cid='+e.id+'&name='+e.name
+				});
+			}
+			if(e.id==2){
+				uni.navigateTo({
+					// ?cid='+e.id+'&name='+e.name
+					url: '../myOrderList/checkReturnList?cid='+e.id+'&name='+e.name
+				});
+			}
+			if(e.id==3){
+				uni.navigateTo({
+					// ?cid='+e.id+'&name='+e.name
+					url: '../myOrderList/checkBaggageList?cid='+e.id+'&name='+e.name
+				});
+			}
+			
 		},
 		//推荐商品跳转
 		toPromotion(e) {

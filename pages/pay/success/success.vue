@@ -10,7 +10,9 @@
 			支付金额:{{amount}}元
 		</view>
 		<view class="back">
-			<view class="btn" @tap="toUser">个人中心</view>
+			<view class="btn" @tap="toBaggage">选择托运</view>
+			<view class="toHomeBtn" @tap="toHome">返回主页</view>
+			
 		</view>
 	</view>
 </template>
@@ -26,9 +28,15 @@
 			this.amount = parseFloat(e.amount).toFixed(2);
 		},
 		methods: {
-			toUser() {
+			toHome() {
+				// uni.navigateBack({delta: 2})
 				uni.switchTab({
-					url: '/pages/tabBar/user'
+					url: '/pages/tabBar/home/home'
+				});
+			},
+			toBaggage() {
+				uni.switchTab({
+					url: '/pages/tabBar/home/home'
 				});
 			}
 		},
@@ -43,7 +51,7 @@
 	}
 .icon{
 	width: 100%;
-	margin-top: 10vw;
+	margin-top: 50vw;
 	image{
 		width: 25vw;
 		height: 25vw;
@@ -60,10 +68,22 @@
 	font-size: 32upx;
 }
 .back{
-	position: absolute;
+	margin-top: 50%;
+	display: flex;
 	width: 100%;
-	bottom: 80upx;
 	.btn{
+		width: 70%;
+		padding: 0 50upx;
+		height: 70upx;
+		border: solid 2upx black;
+		color: black;
+		align-items: center;
+		border-radius: 10upx;
+		font-size: 34upx;
+	}
+	.toHomeBtn{
+		width: 70%;
+		margin-top: 10%;
 		padding: 0 50upx;
 		height: 70upx;
 		border: solid 2upx #f06c7a;

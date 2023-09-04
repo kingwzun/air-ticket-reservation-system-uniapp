@@ -68,7 +68,7 @@
 					<view class="title">选择规格：</view>
 					<view class="sp">
 						<view @tap="toMakeSure(1)">头等舱： {{this.buyData.firstClassPrice}}</view>						
-						<view @tap="toMakeSure(2)">经济舱： {{this.buyData.economyClassPrice}}</view>
+						<view @tap="toMakeSure(0)">经济舱： {{this.buyData.economyClassPrice}}</view>
 					</view>
 				</view>
 				<view class="btn"><view class="button" @tap="hideSpec">取消</view></view>
@@ -76,9 +76,14 @@
 		</view>
 		<!-- 脚部菜单 -->
 		<view class="footer" :style="{bottom:footerbottom}">
-			<view class="settlement">
+			<checkbox-group class="settlement">
+				<label>
+					<checkbox value="cb" />中转路线
+				</label>
+			</checkbox-group>
+			<!-- <view class="settlement">
 				<view class="btn" @tap="toConfirmation">结算({{selectedList.length}})</view>
-			</view>
+			</view> -->
 		</view>
 	</view>
 </template>
@@ -99,6 +104,7 @@ import calendarTab from '@/components/calendar-tab/calendar-tab.vue'
 				showHeader:true,
 				selectedList:[],
 				conditionData:{
+					purposeType:null,
 					departureCity:null,
 					destCity:null,
 					departureTime:null
@@ -144,7 +150,11 @@ import calendarTab from '@/components/calendar-tab/calendar-tab.vue'
 		},
 		onLoad: function (option) { //option为object类型，会序列化上个页面传递的参数
 			this.conditionData=option
-			console.log(this.conditionData)
+			console.log("conditionData",this.conditionData)
+			uni.setStorage({
+				key:"conditionData",
+				data:this.conditionData
+			})
 		},
 		methods: {
 			//返回上一页

@@ -58,24 +58,25 @@
 	export default {
 		data() {
 			return {
+				paymentOrders:[],
 				amount:0,
 				orderName:'',
 				paytype:'alipay'//支付类型
 			};
 		},
 		onLoad(e) {
-			this.amount = parseFloat(e.amount).toFixed(2);
+			
 			uni.getStorage({
-				key:'paymentOrder',
+				key:'paymentOrders',
 				success: (e) => {
-					if(e.data.length>1){
+					console.log("paymentOrder",e)
+					this.paymentOrders=e.data.paymentOrders
+					if(e.data.paymentOrders.length>1){
 						this.orderName = '多商品合并支付'
 					}else{
-						this.orderName = e.data[0].name;
+						this.orderName = e.data.orderName;
 					}
-					uni.removeStorage({
-						key:'paymentOrder'
-					})
+					this.amount = parseFloat(e.data.sumPrice).toFixed(2);
 				}
 			})
 		},
@@ -90,6 +91,7 @@
 					uni.showToast({
 						title:'支付成功'
 					});
+
 					setTimeout(()=>{
 						uni.redirectTo({
 							url:'../../pay/success/success?amount='+this.amount

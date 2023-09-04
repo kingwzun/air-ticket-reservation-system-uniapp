@@ -36,10 +36,6 @@
 		
 		<!-- 乘机人信息 -->
 		<view class="passenger" >
-	<!-- 		<view class="passenger-title">
-				乘机人
-			</view> -->
-
 			<view class="passenger-info"  v-for="(item,index) in passengers" v-if="selectedPassengers.includes(item.id)">
 				<view class="passenger-name"  >{{item.passengerName}}</view>
 				<view class="passenger-identificationCard"> {{item.identificationCard}}</view>
@@ -73,9 +69,17 @@
 				</view>
 			</view>
 
-			<view class="row">
+			<view class="row" v-if="conditionData.purposeType=='home' ">
 				<view class="nominal">
 					会员抵扣
+				</view>
+				<view class="content">
+					￥-{{deduction|toFixed}}
+				</view>
+			</view>
+			<view class="row" v-if="conditionData.purposeType=='rebuildOrder'">
+				<view class="nominal">
+					原机票抵扣
 				</view>
 				<view class="content">
 					￥-{{deduction|toFixed}}
@@ -94,29 +98,41 @@
 </view></template>
 
 <script>
+	import axios from 'axios'
+	import jsonBig from 'json-bigint'
 import { defineSSRCustomElement } from "vue";
 	export default {
 		data() {
 			return {
-				paymentOrder:{
-				},
-
 				dayString :null,
 				yearAndMonth:null,
-				buylist:[],		//订单列表
-				sumPrice:0.0,	//用户付款价格
+				sumPrice:0.0,	//用户总付款价格
 				phoneNumber:'',
 				deduction:0,	//抵扣价格
-				recinfo:{id:1,name:"大黑哥",head:"大",tel:"18816881688",address:{region:{"label":"广东省-深圳市-福田区","value":[18,2,1],"cityCode":"440304"},detailed:'深南大道1111号无名摩登大厦6楼A2'},isDefault:true},
-				// 乘机人信息
-				passengers:[],
+				passengerPrices:[],//每个人的价格
+				
+				passengers:[],// 乘机人信息
 				selectedPassengers:[],//选中的乘机人编号
 				selectSpec:null,
-
+				userId:null,//用户id
+				vipStatus:null,
+				userDiscountRate:null,//用户会员打折信息
+				paymentOrder:null,
+				conditionData:null,
+				
 			};
 		},
 		onShow() {
+			console.log("onShowConfirmation");
 			//页面显示时，加载订单信息
+			uni.getStorage({
+				key:"conditionData",
+				success:(res)=>{
+					this.conditionData=res.data
+					console.log("conditionData",this.conditionData)
+				}
+			})
+			
 			uni.getStorage({
 				key: 'paymentOrder',
 				success: (ret) => {
@@ -131,19 +147,16 @@ import { defineSSRCustomElement } from "vue";
 					this.yearAndMonth= date.getFullYear() + "-" + date.getMonth()+"-"+date.getDate()
 					console.log("hello confirmation")
 					console.log(this.paymentOrder )
-					this.goodsPrice = 0;
+					// this.sumPrice =0.0;
+					
+					// 获取用户和乘机人信息
+					this.getPassenger();
+					// console.log("paymentOrder");	
 				}
 			});
+
+
 			
-			uni.getStorage({
-				key:'selectAddress',
-				success: (e) => {
-					this.recinfo = e.data;
-					uni.removeStorage({
-						key:'selectAddress'
-					})
-				}
-			})
 		},
 		onHide() {
 			
@@ -157,15 +170,24 @@ import { defineSSRCustomElement } from "vue";
 				return parseFloat(x).toFixed(2);
 			}
 		},
-		mounted() {
-			this.getPassenger();
-		},
+
 		methods: {
-			// 获取乘机人信息
+			
+			// 获取用户和乘机人信息
 			getPassenger(){
+				//if userId ==null  then getUserId
+				if(!this.userId){
+					this.userId=uni.getStorageSync('userInfo').id
+					this.userDiscountRate=uni.getStorageSync("userInfo").vipStatus;
+				}
 				// if passengerList is null 
 				if(this.passengers.length==0){
-					this.api.getPassengerByUserId({id:1}).then(res=>{
+					console.log("this.passengers.length==0")
+					uni.setStorage({
+						key: 'selectedPassengers',
+						data: this.selectedPassengers,
+					});
+					this.api.getPassengerByUserId({id:this.userId}).then(res=>{
 						this.passengers=res.data;
 						console.log("res",res);
 						uni.setStorage({
@@ -173,61 +195,143 @@ import { defineSSRCustomElement } from "vue";
 							data: this.passengers,
 						});
 						// prevent no selected
-						this.selectedPassengers.push(0);
+						this.selectedPassengers.push(1);
 						uni.setStorage({
 							key: 'selectedPassengers',
 							data: this.selectedPassengers,
 						});
-						console.log("selectedPassengers",this.selectedPassengers)						
+						console.log("selectedPassengers",this.selectedPassengers)	
+						
+						
+						//get vipInfo
+						console.log("getVipInfo")
+						this.api.getUserVip().then(res=>{
+							let vipData=res.data.records;
+							for(let i=0;i<vipData.length;i++){
+								if(vipData[i].level==this.userDiscountRate){
+									this.userDiscountRate=vipData[i].discountRate;
+									break;
+								}
+							};
+							console.log("this.userDiscountRate",this.userDiscountRate)
+							
+							if(this.conditionData.purposeType=='rebuildOrder'){
+								this.deduction=this.conditionData.rebuildMoney
+								this.sumPrice=Math.max(0,(this.selectedPassengers.length*this.paymentOrder.seat_money)-this.deduction)
+							}	
+							else{
+								this.sumPrice=(this.selectedPassengers.length*this.paymentOrder.seat_money) - this.paymentOrder.seat_money*(1-this.userDiscountRate)
+								this.deduction=this.paymentOrder.seat_money*(1-this.userDiscountRate)
+							}
+							
+						})
+						
+					
 					});
+					return //结束掉，不执行后面，因为是多线程，有进程问题
 				}
 
+                console.log("this.passengers.length！=0")
 				// read selected 
 				uni.getStorage({
 					key:'selectedPassengers',
 					success: (e) => {
 						this.selectedPassengers = e.data;
+						if(this.conditionData.purposeType=='rebuildOrder'){
+							this.deduction=this.conditionData.rebuildMoney
+							this.sumPrice=Math.max(0,(this.selectedPassengers.length*this.paymentOrder.seat_money)-this.deduction)
+						}	
+						else{
+							this.sumPrice=(this.selectedPassengers.length*this.paymentOrder.seat_money) - this.paymentOrder.seat_money*(1-this.userDiscountRate)
+							this.deduction=this.paymentOrder.seat_money*(1-this.userDiscountRate)
+						}
+						// this.sumPrice=(this.selectedPassengers.length*this.paymentOrder.seat_money) - this.paymentOrder.seat_money*(1-this.userDiscountRate)
+						// this.deduction=this.paymentOrder.seat_money*(1-this.userDiscountRate)
 					}
 				})
-
-				console.log("selectedPassengers",this.selectedPassengers)
-				console.log("Passengers",this.passengers)
+				console.log(this.selectedPassengers.length)
+				
 			},
 			
-			clearOrder(){
-				uni.removeStorage({
-					key: 'buylist',
-					success: (res)=>{
-						this.buylist = [];
-						console.log('remove buylist success');
-					}
-				});
-			},
-			toPay(){
-				//商品列表
-				let paymentOrder = [];
-				let goodsid=[];
-				let len = this.passengers.length;
-				for(let i=0;i<len;i++){
-					paymentOrder.push(this.buylist[i]);
-					goodsid.push(this.buylist[i].id);
-				}
-				// if(paymentOrder.length==0){
-				// 	uni.showToast({title:'订单信息有误，请重新购买',icon:'none'});
-				// 	return ;
-				// }
-				
-				uni.showLoading({
-					title:'正在提交订单...'
-				})
-				this.api.toOrderPurchase({
-					orders:paymentOrder
-				}).then(res => {
-					console.log("handle login")
-					console.log(res.data)
-					uni.hideLoading()
 
-				})				
+			toPay(){
+				let len = this.selectedPassengers.length;
+				if(len==0){
+					uni.showToast({title:'请至少选择一个乘机人',icon:'none'});
+					return
+				}
+				//generate paymetntOrders
+				let paymentOrders = [];
+				
+				for(let i=0;i<len;i++){
+					let passenger=this.passengers[ this.selectedPassengers[i]-1 ];
+					console.log(passenger)
+					console.log( "22selectedPassengers",this.selectedPassengers[i])
+					if(i==0){
+						paymentOrders.push({
+							flightId:this.paymentOrder.flightId,
+							seatType:this.paymentOrder.seat_type,
+							// bookingPerson:this.userId,
+							passenger:passenger.id,
+							amount: this.paymentOrder.seat_money*this.userDiscountRate,
+						});
+					}else{
+						paymentOrders.push({
+							flightId:this.paymentOrder.flightId,
+							seatType:this.paymentOrder.seat_type,
+							// bookingPerson:this.userId,
+							passenger:passenger.id,
+							amount:this.paymentOrder.seat_money,
+						});
+					}
+					console.log(paymentOrders)
+
+				}
+				 let payOrder={
+					 orderName:"航班"+this.paymentOrder.flightId,
+					 paymentOrders:paymentOrders,
+					 sumPrice:this.sumPrice
+				 }
+				 console.log("payOrder",payOrder)
+				uni.setStorage({
+				    key:"paymentOrders",
+					data:payOrder
+				})
+				console.log("payOrders",paymentOrders)
+
+				// uni.showLoading({
+				// 	title:'正在提交订单...'
+				// })
+				// 改签
+				if(this.conditionData.purposeType=='rebuildOrder'){
+					let rebuildOrder={
+							flightId:this.paymentOrder.flightId,
+							seatType:this.paymentOrder.seat_type,
+							// bookingPerson:this.userId,
+							passenger:this.passengers[ this.selectedPassengers[0]-1 ].id,
+							amount: this.paymentOrder.seat_money-this.deduction,
+						}
+						console.log("rebuildOrder",rebuildOrder)
+					this.api.rebookCancelOrigin(this.conditionData.orderId).then(			
+						this.api.rebuildTicket(rebuildOrder).then(res=>{
+							console.log("SuccessfulRebuildTicket",res.data)
+						})
+					)
+				}else{
+					this.api.toOrderPurchase({
+						orders:paymentOrders
+					}).then(res => {
+						console.log("SuccessfulPurchase",res.data)
+					
+					});
+				}
+
+				
+				uni.navigateTo({
+					url: "../pay/payment/payment"
+				})
+				// uni.hideLoading()
+			
 			},
 			//选择乘机人
 			selectPassenger(){
@@ -235,12 +339,7 @@ import { defineSSRCustomElement } from "vue";
 					url:'../user/passenger/passenger?type=select'
 				})
 			},
-			//选择收货地址
-			selectAddress(){
-				uni.navigateTo({
-					url:'../user/address/address?type=select'
-				})
-			}
+
 		}
 	}
 </script>
